@@ -32,12 +32,16 @@ class BarChart extends VeamsComponent {
 		let options = {
 			chartContainer: '[data-js-item="chart"]',
 			data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-			paddingLeftX: 100,
-			paddingRightX: 50,
 			paddingTickX: 0.05,
+			margin: {
+				top: 50,
+				right: 50,
+				bottom: 50,
+				left: 50
+			},
 			svg: {
 				contextClass: 'svg__bar-chart',
-				height: 350,
+				height: 550,
 				backgroundColor: '#f7f7f7'
 			}
 		};
@@ -89,13 +93,18 @@ class BarChart extends VeamsComponent {
 	 * Render class
 	 */
 	render() {
+		this.height = this.options.svg.height - this.options.margin.top - this.options.margin.bottom;
+		this.width = (this.options.svg.width || this.getDefaultWidth()) - this.options.margin.left - this.options.margin.right;
+
 		this.svg = d3
 			.select(this.options.chartContainer)
 			.append('svg')
 			.classed(this.options.svg.contextClass, true)
-			.attr('width', this.options.svg.width || this.getDefaultWidth())
-			.attr('height', this.options.svg.height + 200)
-			.style('background-color', this.options.svg.backgroundColor);
+			.attr('width', this.width + this.options.margin.left + this.options.margin.right)
+			.attr('height', this.height + this.options.margin.top + this.options.margin.bottom)
+			.style('background-color', this.options.svg.backgroundColor)
+			.append('g')
+			.attr('transform', 'translate(' + this.options.margin.left + ',' + this.options.margin.top + ')');
 	}
 
 	getXScale(data) {
@@ -104,7 +113,7 @@ class BarChart extends VeamsComponent {
 			// .align(0.5)
 			//.domain(d3.range(this.options.domainRange || data.length)) // later map index
 			.domain(data) // later map value itself
-			.rangeRound([this.options.paddingLeftX, (this.options.svg.width || this.getDefaultWidth()) - this.options.paddingRightX])
+			.rangeRound([0, (this.width || this.getDefaultWidth())])
 			.paddingInner(this.options.paddingTickX)
 			.paddingOuter(0);
 
@@ -113,8 +122,8 @@ class BarChart extends VeamsComponent {
 
 	getYScale(data) {
 		return d3.scaleLinear()
-			.domain(d3.extent(data))
-			.range([this.options.svg.height, 0]);
+			.domain([0, d3.max(data)])
+			.range([this.height, 0]);
 	}
 
 	getXAxis(data) {
@@ -132,13 +141,12 @@ class BarChart extends VeamsComponent {
 	displayChart(data = this.options.data) {
 		this.svg
 			.append('g')
-			.style('transform', `translateX(${ this.options.paddingLeftX - 50 }px)`)
 			.classed('yaxis', true)
 			.call(this.getYAxis(data));
 
 		this.svg
 			.append('g')
-			.style('transform', `translateY(${ this.options.svg.height + 50 }px)`)
+			.style('transform', `translateY(${ this.height }px)`)
 			.classed('xaxis', true)
 			.call(this.getXAxis(data));
 
@@ -149,7 +157,7 @@ class BarChart extends VeamsComponent {
 			.append('rect')
 			// .attr('x', (d, i) => this.getXScale(data)(i)) // map index to range of data.length
 			.attr('x', (d, i) => this.getXScale(data)(d)) // scale value itself
-			.attr('y', (d) => this.options.svg.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)))
+			.attr('y', (d) => this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)))
 			.attr('width', this.getXScale(data).bandwidth())
 			.attr('height', d => Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)))
 			.classed('bar', true);

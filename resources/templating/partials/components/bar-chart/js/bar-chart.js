@@ -41,6 +41,7 @@ class BarChartComponent extends VeamsComponent {
 			// }
 
 			x: {
+				padding: 50,
 				domainKey: 'name', // if you pass a generic object
 				rangeKey: 'value', // if you pass a generic object
 				align: 'left' || 'right' // left => align: 0, right => align 1, default => align center but not sure if this is going to be necessary !!!
