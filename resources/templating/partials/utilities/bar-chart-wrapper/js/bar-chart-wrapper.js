@@ -107,6 +107,18 @@ class BarChart extends VeamsComponent {
 			.attr('transform', 'translate(' + this.options.margin.left + ',' + this.options.margin.top + ')');
 	}
 
+	addData(data = this.options.data) {
+		if (this.options.transformX) {
+			this.xData = data.map(x => this.options.transformX(x));
+		}
+
+		if (this.options.transformY) {
+			this.yData = data.map(y => this.options.transformY(y));
+		}
+
+		this.data = data;
+	}
+
 	getXScale(data) {
 		return d3
 			.scaleBand()
@@ -126,83 +138,80 @@ class BarChart extends VeamsComponent {
 			.range([this.height, 0]);
 	}
 
-	getXAxis(data) {
+	getXAxis() {
 		return d3
 			.axisBottom()
-			.scale(this.getXScale(data));
+			.scale(this.xScale());
 	}
 
-	getYAxis(data) {
+	getYAxis() {
 		return d3
 			.axisLeft()
-			.scale(this.getYScale(data));
+			.scale(this.yScale());
 	}
 
-	displayChart(data = this.options.data) {
-		let dataX;
-		let dataY;
-		let xScale;
-		let yScale;
+	displayChart() {
 
-		if (this.options.transformX) {
-			dataX = data.map(x => this.options.transformX(x));
-			xScale = () => {
-				return this.getXScale(dataX);
-			}
+		if (this.xData) {
+			this.xScale = () => this.getXScale(this.xData);
+		} else {
+			this.xScale = () => this.getXScale(this.data);
 		}
 
-		if (this.options.transformY) {
-			dataY = data.map(y => this.options.transformY(y));
-			yScale = () => {
-				return this.getYScale(dataY);
-			}
+		if (this.yData) {
+			this.yScale = () => this.getYScale(this.yData);
+		} else {
+			this.yScale = () => this.getYScale(this.data);
 		}
 
 		this.svg
 			.append('g')
 			.classed('yaxis', true)
-			.call(this.getYAxis(dataY? dataY : data));
+			.call(this.getYAxis());
 
 		this.svg
 			.append('g')
 			.style('transform', `translateY(${ this.height }px)`)
 			.classed('xaxis', true)
-			.call(this.getXAxis(dataX? dataX : data));
+			.call(this.getXAxis());
 
 		this.svg
 			.selectAll('rect')
-			.data(data) // what about adding a key function here ???
+			.data(this.data) // what about adding a key function here ???
 			.enter()
 			.append('rect')
 			// .attr('x', (d, i) => this.getXScale(data)(i)) // map index to range of data.length
 			.attr('x', (d, i) => {
-				if (xScale) {
-					return xScale()(this.options.transformX(d));
-				}
+				// if (xScale) {
+				// 	return xScale()(this.options.transformX(d));
+				// }
+				//
+				// return this.getXScale(data)(d)
 
-				return this.getXScale(data)(d)
+				return this.xScale()(d);
+
 			}) // scale value itself
-			.attr('y', (d) => {
-				if (yScale) {
-					return this.height - Math.abs(yScale()(this.options.transformY(d)) - yScale()(0))
-				}
-
-				return this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
-			})
-			.attr('width', () => {
-				if (xScale) {
-					return xScale().bandwidth()
-				}
-
-				return this.getXScale(data).bandwidth()
-			})
-			.attr('height', d => {
-				if (yScale) {
-					return Math.abs(yScale()(this.options.transformY(d)) - yScale()(0));
-				}
-
-				return Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
-			})
+			// .attr('y', (d) => {
+			// 	if (yScale) {
+			// 		return this.height - Math.abs(yScale()(this.options.transformY(d)) - yScale()(0))
+			// 	}
+			//
+			// 	return this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
+			// })
+			// .attr('width', () => {
+			// 	if (xScale) {
+			// 		return xScale().bandwidth()
+			// 	}
+			//
+			// 	return this.getXScale(data).bandwidth()
+			// })
+			// .attr('height', d => {
+			// 	if (yScale) {
+			// 		return Math.abs(yScale()(this.options.transformY(d)) - yScale()(0));
+			// 	}
+			//
+			// 	return Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
+			// })
 			.classed('bar', true);
 	}
 
