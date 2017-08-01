@@ -1,0 +1,42 @@
+{
+  "generator-veams": {
+    "projectName": "veams d3",
+    "projectAuthor": "Oliver Broad",
+    "selfContained": true,
+    "taskRunner": [
+      "grunt"
+    ],
+    "templateEngine": "mangony",
+    "mangonyExpress": true,
+    "installExtendedLayout": false,
+    "installPlugin": false,
+    "gulpModules": [],
+    "gruntModules": [
+      "grunt-autoprefixer",
+      "grunt-browser-sync",
+      "grunt-browserify",
+      "grunt-combine-mq",
+      "grunt-contrib-handlebars",
+      "grunt-contrib-uglify",
+      "grunt-dr-svg-sprites",
+      "grunt-version",
+      "grunt-contrib-handlebars",
+      "grunt-browserify",
+      "grunt-contrib-uglify"
+    ],
+    "features": [
+      "createDevFolder"
+    ],
+    "jsLibs": [
+      "veams-query"
+    ],
+    "cssLibs": [
+      "neat",
+      "include-media"
+    ],
+    "testAndQA": false,
+    "testAndQALibs": [],
+    "veamsPackages": true,
+    "docs": []
+  }
+}

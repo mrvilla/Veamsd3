@@ -1,0 +1,29 @@
+@charset "UTF-8";
+/// Creates a Neat grid container with clearfix.
+///
+/// @group features
+///
+/// @name Grid containter
+///
+/// @argument {map} $grid [$neat-grid]
+///   The type of grid for this column.
+///
+/// @example scss
+///   .element {
+///     @include grid-container;
+///   }
+///
+/// @example css
+///   .element::after {
+///     clear: both;
+///     content: "";
+///     display: block;
+///   }
+
+@mixin grid-container($grid: $neat-grid) {
+  &::after {
+    clear: both;
+    content: "";
+    display: block;
+  }
+}

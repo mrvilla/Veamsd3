@@ -1,0 +1,14 @@
+{
+	"variations": {
+		"default": {
+			"docs": {
+				"variationName": "Default"
+			},
+			"settings": {
+				"barChartWrapperClasses": false,
+				"barChartWrapperJsOptions": {}
+			},
+			"content": {}
+		}
+	}
+}

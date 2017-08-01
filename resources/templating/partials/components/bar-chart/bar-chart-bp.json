@@ -1,0 +1,15 @@
+{
+	"variations": {
+		"default": {
+			"docs": {
+				"variationName": "Default"
+			},
+			"settings": {
+				"barChartContextClass": "default",
+				"barChartClasses": false,
+				"barChartJsOptions": {}
+			},
+			"content": {}
+		}
+	}
+}

@@ -1,0 +1,16 @@
+---
+type: component
+contextData: "bar-chart-bp"
+layout: "lyt-docs"
+publish: false
+---
+
+
+<div class="c-bar-chart{{#if settings.barChartContextClass}}--{{settings.barChartContextClass}}{{else}}--default{{/if}}{{#if settings.barChartClasses}} {{settings.barChartClasses}}{{/if}}"
+     data-css="c-bar-chart"
+     data-js-module="bar-chart"{{#if settings.barChartJsOptions}}
+     data-js-options='{{stringify settings.barChartJsOptions}}'{{/if}}>
+
+     <div data-js-item="chart"></div>
+     
+</div>
