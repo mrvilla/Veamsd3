@@ -109,10 +109,12 @@ class BarChart extends VeamsComponent {
 
 	addData(data = this.options.data) {
 		if (this.options.transformX) {
+			this.xTransform = true;
 			this.xData = data.map(x => this.options.transformX(x));
 		}
 
 		if (this.options.transformY) {
+			this.yTransform = true;
 			this.yData = data.map(y => this.options.transformY(y));
 		}
 
@@ -141,28 +143,31 @@ class BarChart extends VeamsComponent {
 	getXAxis() {
 		return d3
 			.axisBottom()
-			.scale(this.xScale());
+			.scale(this.xScale);
 	}
 
 	getYAxis() {
 		return d3
 			.axisLeft()
-			.scale(this.yScale());
+			.scale(this.yScale);
 	}
 
 	displayChart() {
 
 		if (this.xData) {
-			this.xScale = () => this.getXScale(this.xData);
+			this.xScaleGen = () => this.getXScale(this.xData);
 		} else {
-			this.xScale = () => this.getXScale(this.data);
+			this.xScaleGen = () => this.getXScale(this.data);
 		}
 
 		if (this.yData) {
-			this.yScale = () => this.getYScale(this.yData);
+			this.yScaleGen = () => this.getYScale(this.yData);
 		} else {
-			this.yScale = () => this.getYScale(this.data);
+			this.yScaleGen = () => this.getYScale(this.data);
 		}
+
+		this.xScale = this.xScaleGen();
+		this.yScale = this.yScaleGen();
 
 		this.svg
 			.append('g')
@@ -181,16 +186,7 @@ class BarChart extends VeamsComponent {
 			.enter()
 			.append('rect')
 			// .attr('x', (d, i) => this.getXScale(data)(i)) // map index to range of data.length
-			.attr('x', (d, i) => {
-				// if (xScale) {
-				// 	return xScale()(this.options.transformX(d));
-				// }
-				//
-				// return this.getXScale(data)(d)
-
-				return this.xScale()(d);
-
-			}) // scale value itself
+			.attr('x', (d, i) => this.xScale(this.xTransform? this.options.transformX(d) : d)) // scale value itself
 			// .attr('y', (d) => {
 			// 	if (yScale) {
 			// 		return this.height - Math.abs(yScale()(this.options.transformY(d)) - yScale()(0))
