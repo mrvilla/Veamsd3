@@ -41,14 +41,15 @@ class BarChartComponent extends VeamsComponent {
 			// }
 
 			x: {
-				padding: 50,
 				domainKey: 'name', // if you pass a generic object
 				rangeKey: 'value', // if you pass a generic object
 				align: 'left' || 'right' // left => align: 0, right => align 1, default => align center but not sure if this is going to be necessary !!!
 			},
 			y: {
 				linear: true
-			}
+			},
+			// transformX: x => x.name,
+			// transformY: y => y.value
 		};
 
 		super(obj, options);
@@ -102,6 +103,49 @@ class BarChartComponent extends VeamsComponent {
 		//this.barChart.displayChart();
 
 		this.barChart.displayChart([ 5, 10, 13, -19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ]); // todo: what about negative values???
+
+		// this.barChart.displayChart([
+		// 	{
+		// 		name: 'Name1',
+		// 		value: 5
+		// 	},
+		// 	{
+		// 		name: 'Name2',
+		// 		value: 17
+		// 	},
+		// 	{
+		// 		name: 'Name3',
+		// 		value: 25
+		// 	},
+		// 	{
+		// 		name: 'Name4',
+		// 		value: 11
+		// 	},
+		// 	{
+		// 		name: 'Name5',
+		// 		value: 3
+		// 	},
+		// 	{
+		// 		name: 'Name6',
+		// 		value: 22
+		// 	},
+		// 	{
+		// 		name: 'Name7',
+		// 		value: 15
+		// 	},
+		// 	{
+		// 		name: 'Name8',
+		// 		value: 31
+		// 	},
+		// 	{
+		// 		name: 'Name9',
+		// 		value: 3
+		// 	},
+		// 	{
+		// 		name: 'Name10',
+		// 		value: 2
+		// 	}
+		// ]);
 
 		//setTimeout(() => {
 		// this.barChart.updateChart([11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55]);

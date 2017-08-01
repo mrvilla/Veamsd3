@@ -139,16 +139,35 @@ class BarChart extends VeamsComponent {
 	}
 
 	displayChart(data = this.options.data) {
+		let dataX;
+		let dataY;
+		let xScale;
+		let yScale;
+
+		if (this.options.transformX) {
+			dataX = data.map(x => this.options.transformX(x));
+			xScale = () => {
+				return this.getXScale(dataX);
+			}
+		}
+
+		if (this.options.transformY) {
+			dataY = data.map(y => this.options.transformY(y));
+			yScale = () => {
+				return this.getYScale(dataY);
+			}
+		}
+
 		this.svg
 			.append('g')
 			.classed('yaxis', true)
-			.call(this.getYAxis(data));
+			.call(this.getYAxis(dataY? dataY : data));
 
 		this.svg
 			.append('g')
 			.style('transform', `translateY(${ this.height }px)`)
 			.classed('xaxis', true)
-			.call(this.getXAxis(data));
+			.call(this.getXAxis(dataX? dataX : data));
 
 		this.svg
 			.selectAll('rect')
@@ -156,10 +175,34 @@ class BarChart extends VeamsComponent {
 			.enter()
 			.append('rect')
 			// .attr('x', (d, i) => this.getXScale(data)(i)) // map index to range of data.length
-			.attr('x', (d, i) => this.getXScale(data)(d)) // scale value itself
-			.attr('y', (d) => this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)))
-			.attr('width', this.getXScale(data).bandwidth())
-			.attr('height', d => Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)))
+			.attr('x', (d, i) => {
+				if (xScale) {
+					return xScale()(this.options.transformX(d));
+				}
+
+				return this.getXScale(data)(d)
+			}) // scale value itself
+			.attr('y', (d) => {
+				if (yScale) {
+					return this.height - Math.abs(yScale()(this.options.transformY(d)) - yScale()(0))
+				}
+
+				return this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
+			})
+			.attr('width', () => {
+				if (xScale) {
+					return xScale().bandwidth()
+				}
+
+				return this.getXScale(data).bandwidth()
+			})
+			.attr('height', d => {
+				if (yScale) {
+					return Math.abs(yScale()(this.options.transformY(d)) - yScale()(0));
+				}
+
+				return Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
+			})
 			.classed('bar', true);
 	}
 
