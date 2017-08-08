@@ -93,6 +93,7 @@ class BarChartComponent extends VeamsComponent {
 			data = data.filter(d => d.Year == "2012");
 			this.barChart.addData(data);
 			this.barChart.displayChart();
+			
 			this.renderSelect(data);
 			this.attachClickHandler()
 		});
