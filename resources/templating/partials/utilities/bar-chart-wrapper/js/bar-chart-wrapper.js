@@ -107,13 +107,13 @@ class BarChart extends VeamsComponent {
 	setXKey(key) {
 		this.checkKey(key);
 		this.xKey = key;
-		this.xData = this.data.map(d => d[this.options.xKey]);
+		this.xData = this.data.map(d => d[this.xKey]);
 	}
 
 	setYKey(key) {
 		this.checkKey(key);
 		this.yKey = key;
-		this.yData = this.data.map(d => +d[this.options.yKey]);
+		this.yData = this.data.map(d => +d[this.yKey]);
 	}
 
 	addData(data = this.options.data) {
@@ -138,14 +138,9 @@ class BarChart extends VeamsComponent {
 	getXScale(data) {
 		return d3
 			.scaleBand()
-			// .align(0.5)
-			//.domain(d3.range(this.options.domainRange || data.length)) // later map index
-			.domain(data) // later map value itself
+			.domain(data)
 			.rangeRound([0, (this.width || this.getDefaultWidth())])
-			.paddingInner(this.options.paddingTickX)
-			.paddingOuter(0);
-
-		// does it make sense to define different inner and outer paddings ???
+			.padding(this.options.paddingTickX);
 	}
 
 	getYScale(data) {
@@ -185,6 +180,10 @@ class BarChart extends VeamsComponent {
 			.append('g')
 			.attr('transform', 'translate(' + this.options.margin.left + ',' + this.options.margin.top + ')');
 
+		this.renderData();
+	}
+
+	renderData() {
 		this.xScaleGen = () => this.getXScale(this.xData);
 		this.yScaleGen = () => this.getYScale(this.yData);
 
@@ -192,32 +191,49 @@ class BarChart extends VeamsComponent {
 		this.yScale = this.yScaleGen();
 
 		this.calculateX = (d) => {
-			d = this.options.xKey? d[this.options.xKey]: d;
+			d = this.xKey? d[this.xKey]: d;
 			return this.xScale(d);
 		};
 
 		this.calculateY = (d) => {
-			d = this.options.yKey? d[this.options.yKey]: d;
+			d = this.yKey? d[this.yKey]: d;
 			return this.yScale(d);
 		};
 
-		this.svg
-			.append('g')
-			.classed('yaxis', true)
+		if (!this.yAxis) {
+			this.yAxis = this.svg
+							.append('g')
+							.classed('yaxis', true);
+		}
+
+		this.yAxis
+			.transition()
+			.duration(this.options.transitionDuration? this.options.transitionDuration : 0)
 			.call(this.getYAxis());
 
-		this.svg
-			.append('g')
-			.style('transform', `translateY(${ this.height }px)`)
-			.classed('xaxis', true)
+		if (!this.xAxis) {
+			this.xAxis = this.svg
+							.append('g')
+							.style('transform', `translateY(${ this.height }px)`)
+							.classed('xaxis', true);
+		}
+
+		this.xAxis
+			.transition()
+			.duration(this.options.transitionDuration? this.options.transitionDuration : 0)
 			.call(this.getXAxis());
+
+		this.rect = this.svg
+			.selectAll('rect')
+			.data(this.data);
+
+		this.rect
+			.enter()
+			.append('rect')
+			.classed('bar', true);
 
 		this.svg
 			.selectAll('rect')
-			.data(this.data) // what about adding a key function here ???
-			.enter()
-			.append('rect')
-			.classed('bar', true)
 			.attr('x', (d) => {
 				return this.calculateX(d);
 			}) // scale value itself
@@ -237,8 +253,8 @@ class BarChart extends VeamsComponent {
 				return this.options.transitionDuration? '50% 50%' : '';
 			})
 			.transition()
-				.delay(this.options.transitionDelay? this.options.transitionDelay : 300)
-				.duration(this.options.transitionDuration? this.options.transitionDuration : 0)
+			.delay(this.options.transitionDelay? this.options.transitionDelay : 0)
+			.duration(this.options.transitionDuration? this.options.transitionDuration : 0)
 			.attr('height', d => {
 				return Math.abs(this.calculateY(d) - this.yScale(0));
 			});

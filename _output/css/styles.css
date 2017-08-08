@@ -196,6 +196,9 @@ Context: Default
 .c-bar-chart--default .svg__bar-chart--runtime .xaxis .tick text {
   transform: rotate(-25deg) translate(-10px, 5px); }
 
+.c-bar-chart--default select {
+  margin-left: 50px; }
+
 /* ===================================================
 utility: bar-chart-wrapper
 =================================================== */

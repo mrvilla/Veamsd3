@@ -32,7 +32,7 @@ class BarChartComponent extends VeamsComponent {
 	constructor(obj) {
 		let options = {
 			standalone: false, // this is important if you run it at runtime !!!
-			transitionDuration: 1000,
+			transitionDuration: 500,
 			svg: {
 				contextClass: 'svg__bar-chart--runtime',
 				height: 550,
@@ -90,21 +90,17 @@ class BarChartComponent extends VeamsComponent {
 		});
 		
 		this.fetchData().then(data => {
-			this.barChart.addData(data.filter(d => d.Year == "2012"));
+			data = data.filter(d => d.Year == "2012");
+			this.barChart.addData(data);
 			this.barChart.displayChart();
-
+			this.renderSelect(data);
 			this.attachClickHandler()
 		});
 
-		this.$el.find('button').on('click', () => {
-			this.barChart.setYKey('HispanicPopulation');
-			console.log(this.barChart.yData);
+		this.$el.find('select').on('change', (e) => {
+			this.barChart.setYKey(e.target.value);
+			this.barChart.renderData();
 		});
-		
-		//setTimeout(() => {
-		// this.barChart.updateChart([11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55]);
-		//this.barChart.updateChart([11, 22, 33, 44]);
-		//}, 1500);
 	}
 
 	fetchData() {
@@ -118,12 +114,24 @@ class BarChartComponent extends VeamsComponent {
 		});
 	}
 
+	renderSelect(data) {
+		d3.select('select').selectAll("option")
+			.data(Object.keys(data[0]).filter(d => (d != 'Year' && d != 'State')))
+			.enter().append("option")
+			.attr("value", function(d){
+				return d;
+			})
+			.text(function(d){
+				return d;
+			})
+	}
+
 	attachClickHandler() {
 		d3
 			.select(this.el)
 			.selectAll('rect')
-			.on('mouseenter', (d, i, nodes) => {
-				console.log(d[this.barChart.xKey] + ': ' + d[this.barChart.yKey]);
+			.on('click', (d, i, nodes) => {
+				alert(this.barChart.yKey + " of " + d[this.barChart.xKey] + ': ' + d[this.barChart.yKey]);
 			});
 	}
 
