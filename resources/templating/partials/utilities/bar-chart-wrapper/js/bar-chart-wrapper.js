@@ -42,6 +42,7 @@ class BarChart extends VeamsComponent {
 				left: 50
 			},
 			standalone: true,
+			isStacked: false, // what about Stacked Bar Charts ???
 			svg: {
 				contextClass: 'svg__bar-chart',
 				height: 550,
@@ -171,7 +172,7 @@ class BarChart extends VeamsComponent {
 		this.height = this.options.svg.height - this.options.margin.top - this.options.margin.bottom;
 		this.width = (this.options.svg.width || this.getDefaultWidth()) - this.options.margin.left - this.options.margin.right;
 		this.svg = d3
-			.select(this.options.chartContainer)
+			.select(this.$chartContainer[0])
 			.append('svg')
 			.classed(this.options.svg.contextClass, true)
 			.attr('width', this.width + this.options.margin.left + this.options.margin.right)
