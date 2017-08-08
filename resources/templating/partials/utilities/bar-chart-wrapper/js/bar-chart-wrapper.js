@@ -32,8 +32,8 @@ class BarChart extends VeamsComponent {
 		let options = {
 			chartContainer: '[data-js-item="chart"]',
 			data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-			xKey: null, // what if this is an array? => select dropdown => update on change etc
-			yKey: null, // what if this is an array? => select dropdown => update on change etc
+			xKey: null, // todo: what if this is an array? => select dropdown => update on change etc
+			yKey: null, // todo: what if this is an array? => select dropdown => update on change etc
 			paddingTickX: 0.05,
 			margin: {
 				top: 50,
@@ -42,7 +42,8 @@ class BarChart extends VeamsComponent {
 				left: 50
 			},
 			standalone: true,
-			isStacked: false, // what about Stacked Bar Charts ???
+			isStacked: false, // todo: what about Stacked Bar Charts ???
+			grid: false, // todo: add default grid or not ???
 			svg: {
 				contextClass: 'svg__bar-chart',
 				height: 550,
