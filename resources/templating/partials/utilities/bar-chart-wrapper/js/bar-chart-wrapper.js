@@ -236,7 +236,7 @@ class BarChart extends VeamsComponent {
 			.selectAll('rect')
 			.attr('x', (d) => {
 				return this.calculateX(d);
-			}) // scale value itself
+			}) 
 			.attr('y', (d) => {
 				if (this.options.transitionDuration) {
 					return this.height;
