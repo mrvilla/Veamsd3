@@ -32,6 +32,8 @@ class BarChart extends VeamsComponent {
 		let options = {
 			chartContainer: '[data-js-item="chart"]',
 			data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			xKey: null,
+			yKey: null,
 			paddingTickX: 0.05,
 			margin: {
 				top: 50,
@@ -39,6 +41,7 @@ class BarChart extends VeamsComponent {
 				bottom: 50,
 				left: 50
 			},
+			standalone: true,
 			svg: {
 				contextClass: 'svg__bar-chart',
 				height: 550,
@@ -85,7 +88,12 @@ class BarChart extends VeamsComponent {
 	 *
 	 */
 	initialize() {
-		this.$chartContainer = $(this.options.chartContainer);
+		this.$chartContainer = $(this.options.chartContainer, this.el);
+
+		if (this.options.standalone) {
+			this.addData();
+			this.displayChart();
+		}
 	}
 
 
@@ -93,32 +101,14 @@ class BarChart extends VeamsComponent {
 	 * Render class
 	 */
 	render() {
-		this.height = this.options.svg.height - this.options.margin.top - this.options.margin.bottom;
-		this.width = (this.options.svg.width || this.getDefaultWidth()) - this.options.margin.left - this.options.margin.right;
 
-		this.svg = d3
-			.select(this.options.chartContainer)
-			.append('svg')
-			.classed(this.options.svg.contextClass, true)
-			.attr('width', this.width + this.options.margin.left + this.options.margin.right)
-			.attr('height', this.height + this.options.margin.top + this.options.margin.bottom)
-			.style('background-color', this.options.svg.backgroundColor)
-			.append('g')
-			.attr('transform', 'translate(' + this.options.margin.left + ',' + this.options.margin.top + ')');
 	}
 
 	addData(data = this.options.data) {
-		if (this.options.transformX) {
-			this.xTransform = true;
-			this.xData = data.map(x => this.options.transformX(x));
-		}
-
-		if (this.options.transformY) {
-			this.yTransform = true;
-			this.yData = data.map(y => this.options.transformY(y));
-		}
-
 		this.data = data;
+
+		this.xData = this.options.xKey? this.data.map(d => d[this.options.xKey]): data;
+		this.yData = this.options.yKey? this.data.map(d => d[this.options.yKey]): data;
 	}
 
 	getXScale(data) {
@@ -152,22 +142,40 @@ class BarChart extends VeamsComponent {
 			.scale(this.yScale);
 	}
 
-	displayChart() {
-
-		if (this.xData) {
-			this.xScaleGen = () => this.getXScale(this.xData);
-		} else {
-			this.xScaleGen = () => this.getXScale(this.data);
+	displayChart() { // this should only be run once to 'initialize', otherwise error gets thrown
+		if (this.initialized) {
+			throw new Error("This component has already been initialized. Make sure you set standalone in this.options to false or check the documentation if you would like to run this module at runtime.");
 		}
 
-		if (this.yData) {
-			this.yScaleGen = () => this.getYScale(this.yData);
-		} else {
-			this.yScaleGen = () => this.getYScale(this.data);
-		}
+		this.initialized = true;
+
+		this.height = this.options.svg.height - this.options.margin.top - this.options.margin.bottom;
+		this.width = (this.options.svg.width || this.getDefaultWidth()) - this.options.margin.left - this.options.margin.right;
+		this.svg = d3
+			.select(this.options.chartContainer)
+			.append('svg')
+			.classed(this.options.svg.contextClass, true)
+			.attr('width', this.width + this.options.margin.left + this.options.margin.right)
+			.attr('height', this.height + this.options.margin.top + this.options.margin.bottom)
+			.style('background-color', this.options.svg.backgroundColor)
+			.append('g')
+			.attr('transform', 'translate(' + this.options.margin.left + ',' + this.options.margin.top + ')');
+
+		this.xScaleGen = () => this.getXScale(this.xData);
+		this.yScaleGen = () => this.getYScale(this.yData);
 
 		this.xScale = this.xScaleGen();
 		this.yScale = this.yScaleGen();
+
+		this.calculateX = (d) => {
+			d = this.options.xKey? d[this.options.xKey]: d;
+			return this.xScale(d);
+		};
+
+		this.calculateY = (d) => {
+			d = this.options.yKey? d[this.options.yKey]: d;
+			return this.yScale(d);
+		};
 
 		this.svg
 			.append('g')
@@ -185,55 +193,23 @@ class BarChart extends VeamsComponent {
 			.data(this.data) // what about adding a key function here ???
 			.enter()
 			.append('rect')
-			// .attr('x', (d, i) => this.getXScale(data)(i)) // map index to range of data.length
-			.attr('x', (d, i) => this.xScale(this.xTransform? this.options.transformX(d) : d)) // scale value itself
-			// .attr('y', (d) => {
-			// 	if (yScale) {
-			// 		return this.height - Math.abs(yScale()(this.options.transformY(d)) - yScale()(0))
-			// 	}
-			//
-			// 	return this.height - Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
-			// })
-			// .attr('width', () => {
-			// 	if (xScale) {
-			// 		return xScale().bandwidth()
-			// 	}
-			//
-			// 	return this.getXScale(data).bandwidth()
-			// })
-			// .attr('height', d => {
-			// 	if (yScale) {
-			// 		return Math.abs(yScale()(this.options.transformY(d)) - yScale()(0));
-			// 	}
-			//
-			// 	return Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0))
-			// })
-			.classed('bar', true);
+			.classed('bar', true)
+			.attr('x', (d) => {
+				return this.calculateX(d);
+			}) // scale value itself
+			.style('transform', 'rotate(1turn)')
+			.attr('y', (d) => {
+				return this.height - Math.abs(this.calculateY(d) - this.yScale(0));
+			})
+			.attr('width', () => {
+				return this.getXScale(this.xData).bandwidth();
+			})
+			.transition()
+			  .duration(this.options.transitionDuration? this.options.transitionDuration : 0)
+			.attr('height', d => {
+				return Math.abs(this.calculateY(d) - this.yScale(0));
+			});
 	}
-
-	// updateChart(data) {
-	// 	const rect = this.svg
-	// 					.selectAll('rect')
-	// 					.data(data);
-	//
-	// 	rect
-	// 		.enter()
-	// 		.append('rect');
-	//
-	// 	rect
-	// 		.exit()
-	// 		.remove();
-	//
-	// 	this.svg
-	// 		.selectAll('rect')
-	// 		.classed('bar', true)
-	// 		.transition()
-	// 		.attr('x', (d, i) => this.getXScale(data)(i))
-	// 		.attr('y', 0)
-	// 		.attr('width', this.getXScale(data).bandwidth())
-	// 		.attr('height', d => Math.abs(this.getYScale(data)(d) - this.getYScale(data)(0)));
-	//
-	// }
 
 	getDefaultWidth() {
 		if (this.$chartContainer.length) {
