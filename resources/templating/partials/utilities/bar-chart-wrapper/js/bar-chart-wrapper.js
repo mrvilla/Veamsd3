@@ -32,8 +32,8 @@ class BarChart extends VeamsComponent {
 		let options = {
 			chartContainer: '[data-js-item="chart"]',
 			data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-			xKey: null,
-			yKey: null,
+			xKey: null, // what if this is an array? => select dropdown => update on change etc
+			yKey: null, // what if this is an array? => select dropdown => update on change etc
 			paddingTickX: 0.05,
 			margin: {
 				top: 50,
@@ -104,11 +104,41 @@ class BarChart extends VeamsComponent {
 
 	}
 
+	setXKey(key) {
+		this.checkKey(key);
+		this.xKey = key;
+		this.xData = this.data.map(d => d[this.options.xKey]);
+	}
+
+	setYKey(key) {
+		this.checkKey(key);
+		this.yKey = key;
+		this.yData = this.data.map(d => d[this.options.yKey]);
+	}
+
 	addData(data = this.options.data) {
 		this.data = data;
 
-		this.xData = this.options.xKey? this.data.map(d => d[this.options.xKey]): data;
-		this.yData = this.options.yKey? this.data.map(d => d[this.options.yKey]): data;
+		if (this.options.xKey || this.options.yKey) {
+			this.keys = Object.keys(data[0]);
+
+			this.options.xKey && this.checkKey(this.options.xKey);
+			this.options.yKey && this.checkKey(this.options.yKey);
+
+		}
+
+		this.xData = this.options.xKey? this.data.map(d => d[this.options.xKey]): this.data;
+		this.yData = this.options.yKey? this.data.map(d => +d[this.options.yKey]): this.data;
+
+
+	}
+
+	checkKey(key) {
+		let keyExists = this.keys.indexOf(key) != -1;
+
+		if (!keyExists) {
+			throw new Error(`The key "${key}" you have provided is not available in the data.`);
+		}
 	}
 
 	getXScale(data) {
@@ -197,15 +227,24 @@ class BarChart extends VeamsComponent {
 			.attr('x', (d) => {
 				return this.calculateX(d);
 			}) // scale value itself
-			.style('transform', 'rotate(1turn)')
 			.attr('y', (d) => {
+				if (this.options.transitionDuration) {
+					return this.height;
+				}
 				return this.height - Math.abs(this.calculateY(d) - this.yScale(0));
 			})
 			.attr('width', () => {
 				return this.getXScale(this.xData).bandwidth();
 			})
+			.style('transform', () => {
+				return this.options.transitionDuration? 'rotate(0.5turn) translateY(0%)' : '';
+			})
+			.style('transform-origin', () => {
+				return this.options.transitionDuration? '50% 50%' : '';
+			})
 			.transition()
-			  .duration(this.options.transitionDuration? this.options.transitionDuration : 0)
+				.delay(this.options.transitionDelay? this.options.transitionDelay : 300)
+				.duration(this.options.transitionDuration? this.options.transitionDuration : 0)
 			.attr('height', d => {
 				return Math.abs(this.calculateY(d) - this.yScale(0));
 			});

@@ -12,6 +12,7 @@ import {Veams} from 'app';
 import VeamsComponent from 'veams/src/js/common/component';
 
 import BarChartWrapper from '../../../utilities/bar-chart-wrapper/js/bar-chart-wrapper';
+import * as d3 from 'd3';
 
 // Variables
 const $ = Veams.$;
@@ -37,8 +38,8 @@ class BarChartComponent extends VeamsComponent {
 				height: 550,
 				backgroundColor: '#f7f7f7'
 			},
-			xKey: 'name',
-			yKey: 'value'
+			xKey: 'State',
+			yKey: 'TotalPopulation'
 			
 		};
 
@@ -87,60 +88,14 @@ class BarChartComponent extends VeamsComponent {
 			appInstance: Veams,
 			options: this.options
 		});
-
-		//this.barChart.addData([ 5, 10, 13, -19, 21, 25, 22, 18, 15, 13, 11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ]); // todo: what about negative values???
-
-		// this.barChart.addData([
-		// 		{
-		// 			name: 'Name1',
-		// 			value: 5
-		// 		},
-		// 		{
-		// 			name: 'Name2',
-		// 			value: 17
-		// 		},
-		// 		{
-		// 			name: 'Name3',
-		// 			value: 25
-		// 		},
-		// 		{
-		// 			name: 'Name4',
-		// 			value: 11
-		// 		},
-		// 		{
-		// 			name: 'Name5',
-		// 			value: 3
-		// 		},
-		// 		{
-		// 			name: 'Name6',
-		// 			value: 22
-		// 		},
-		// 		{
-		// 			name: 'Name7',
-		// 			value: 15
-		// 		},
-		// 		{
-		// 			name: 'Name8',
-		// 			value: 31
-		// 		},
-		// 		{
-		// 			name: 'Name9',
-		// 			value: 3
-		// 		},
-		// 		{
-		// 			name: 'Name10',
-		// 			value: 2
-		// 		}
-		// ]);
-		//
-		//
-		// this.barChart.displayChart();
-
+		
 		this.fetchData().then(data => {
-			this.barChart.addData(data);
+			this.barChart.addData(data.filter(d => d.Year == "2012"));
 			this.barChart.displayChart();
-		});
 
+			this.attachClickHandler()
+		});
+		
 		//setTimeout(() => {
 		// this.barChart.updateChart([11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55]);
 		//this.barChart.updateChart([11, 22, 33, 44]);
@@ -149,51 +104,22 @@ class BarChartComponent extends VeamsComponent {
 
 	fetchData() {
 		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				resolve([
-					{
-						name: 'Name1',
-						value: 5
-					},
-					{
-						name: 'Name2',
-						value: 17
-					},
-					{
-						name: 'Name3',
-						value: 25
-					},
-					{
-						name: 'Name4',
-						value: 11
-					},
-					{
-						name: 'Name5',
-						value: 3
-					},
-					{
-						name: 'Name6',
-						value: 22
-					},
-					{
-						name: 'Name7',
-						value: 15
-					},
-					{
-						name: 'Name8',
-						value: 31
-					},
-					{
-						name: 'Name9',
-						value: 3
-					},
-					{
-						name: 'Name10',
-						value: 2
-					}
-				]);
-			}, 100);
-		})
+			d3.tsv('../DataSrc/VotingInformation.tsv', (err, data) => {
+				if (data) {
+					resolve(data);
+				}
+				reject('Retrieving data failed. ' + err);
+			});
+		});
+	}
+
+	attachClickHandler() {
+		d3
+			.select(this.el)
+			.selectAll('rect')
+			.on('mouseenter', (d, i, nodes) => {
+				console.log(d[this.options.xKey] + ': ' + d[this.options.yKey]);
+			});
 	}
 
 	/**

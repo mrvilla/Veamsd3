@@ -186,6 +186,16 @@ Context: Default
   stroke-width: 1px;
   stroke: black; }
 
+.c-bar-chart--default .svg__bar-chart--runtime rect {
+  fill: #03deff;
+  stroke: red;
+  stroke-width: 1px; }
+  .c-bar-chart--default .svg__bar-chart--runtime rect:hover {
+    opacity: .3; }
+
+.c-bar-chart--default .svg__bar-chart--runtime .xaxis .tick text {
+  transform: rotate(-25deg) translate(-10px, 5px); }
+
 /* ===================================================
 utility: bar-chart-wrapper
 =================================================== */

@@ -21,5 +21,24 @@ Context: Default
         }
     }
 
+    .svg__bar-chart--runtime  {
+        rect {
+            fill: #03deff;
+            stroke: red;
+            stroke-width: 1px;
+
+            &:hover {
+                opacity: .3;
+            }
+        }
+
+        .xaxis {
+            .tick {
+                text {
+                    transform: rotate(-25deg) translate(-10px, 5px);
+                }
+            }
+        }
+    }
 
 }
