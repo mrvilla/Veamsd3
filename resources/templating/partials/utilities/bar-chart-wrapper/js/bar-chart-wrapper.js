@@ -113,7 +113,7 @@ class BarChart extends VeamsComponent {
 	setYKey(key) {
 		this.checkKey(key);
 		this.yKey = key;
-		this.yData = this.data.map(d => d[this.options.yKey]);
+		this.yData = this.data.map(d => +d[this.options.yKey]);
 	}
 
 	addData(data = this.options.data) {
@@ -121,16 +121,10 @@ class BarChart extends VeamsComponent {
 
 		if (this.options.xKey || this.options.yKey) {
 			this.keys = Object.keys(data[0]);
-
-			this.options.xKey && this.checkKey(this.options.xKey);
-			this.options.yKey && this.checkKey(this.options.yKey);
-
+			
+			this.options.xKey && this.setXKey(this.options.xKey);
+			this.options.yKey && this.setYKey(this.options.yKey);
 		}
-
-		this.xData = this.options.xKey? this.data.map(d => d[this.options.xKey]): this.data;
-		this.yData = this.options.yKey? this.data.map(d => +d[this.options.yKey]): this.data;
-
-
 	}
 
 	checkKey(key) {

@@ -95,6 +95,11 @@ class BarChartComponent extends VeamsComponent {
 
 			this.attachClickHandler()
 		});
+
+		this.$el.find('button').on('click', () => {
+			this.barChart.setYKey('HispanicPopulation');
+			console.log(this.barChart.yData);
+		});
 		
 		//setTimeout(() => {
 		// this.barChart.updateChart([11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55, 11, 22, 33, 44, 55]);
@@ -118,7 +123,7 @@ class BarChartComponent extends VeamsComponent {
 			.select(this.el)
 			.selectAll('rect')
 			.on('mouseenter', (d, i, nodes) => {
-				console.log(d[this.options.xKey] + ': ' + d[this.options.yKey]);
+				console.log(d[this.barChart.xKey] + ': ' + d[this.barChart.yKey]);
 			});
 	}
 
