@@ -184,8 +184,8 @@ class BarChart extends VeamsComponent {
 	}
 
 	renderData() {
-		this.xScaleGen = () => this.getXScale(this.xData);
-		this.yScaleGen = () => this.getYScale(this.yData);
+		this.xScaleGen = () => this.getXScale(this.xData? this.xData: this.data);
+		this.yScaleGen = () => this.getYScale(this.yData? this.yData: this.data);
 
 		this.xScale = this.xScaleGen();
 		this.yScale = this.yScaleGen();
@@ -244,7 +244,7 @@ class BarChart extends VeamsComponent {
 				return this.height - Math.abs(this.calculateY(d) - this.yScale(0));
 			})
 			.attr('width', () => {
-				return this.getXScale(this.xData).bandwidth();
+				return this.getXScale(this.xData? this.xData: this.data).bandwidth();
 			})
 			.style('transform', () => {
 				return this.options.transitionDuration? 'rotate(0.5turn) translateY(0%)' : '';
